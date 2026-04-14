@@ -1,3 +1,4 @@
+import { randomInt } from 'node:crypto'
 import type { Server } from 'socket.io'
 import { isFiltered } from './filter'
 import { parseEmotes } from './emotes'
@@ -18,7 +19,7 @@ const usernames = ['streamfan', 'modbot', 'viewer42', 'hype_train', 'nightowl']
 const platformColor = (platform: Platform): string =>
   platform === 'twitch' ? '9147ff' : '53fc18'
 
-const pick = <T>(items: T[]): T => items[Math.floor(Math.random() * items.length)]
+const pick = <T>(items: T[]): T => items[randomInt(0, items.length)]
 
 export class IngestionEngine {
   private io: Server
@@ -59,7 +60,7 @@ export class IngestionEngine {
 
     enabled.forEach((channel) => {
       if (!this.channelTimers.has(channel.id)) {
-        const timer = setInterval(() => this.emitMessage(channel), 2200 + Math.floor(Math.random() * 1200))
+        const timer = setInterval(() => this.emitMessage(channel), 2200 + randomInt(0, 1200))
         this.channelTimers.set(channel.id, timer)
       }
     })
@@ -73,7 +74,7 @@ export class IngestionEngine {
       platform: channel.platform,
       channel: channel.name,
       username: pick(usernames),
-      avatarUrl: `https://api.dicebear.com/9.x/thumbs/svg?seed=${channel.platform}-${Math.random()}`,
+      avatarUrl: `https://api.dicebear.com/9.x/thumbs/svg?seed=${channel.platform}-${randomInt(0, 1_000_000)}`,
       content,
       timestamp: now(),
       filtered: isFiltered(content, state.settings.blockedWords),
@@ -86,8 +87,8 @@ export class IngestionEngine {
   private tickStatus(): void {
     const previous = getState().status
     const next: ConnectionStatus[] = previous.map((item) => {
-      const drift = Math.round(Math.random() * 40)
-      const healthy = Math.random() > 0.06
+      const drift = randomInt(0, 41)
+      const healthy = randomInt(0, 100) > 5
       return {
         ...item,
         healthy,

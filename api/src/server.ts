@@ -22,6 +22,8 @@ import type { AppSettings, PinnedMessage, SystemState } from './types'
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const overlayDir = path.resolve(rootDir, 'overlay')
+const chatOverlayHtml = fs.readFileSync(path.resolve(overlayDir, 'chat.html'), 'utf-8')
+const pinOverlayHtml = fs.readFileSync(path.resolve(overlayDir, 'pin.html'), 'utf-8')
 
 const app = express()
 const httpServer = createServer(app)
@@ -225,15 +227,13 @@ app.get('/api/obs-url', (req, res) => {
 })
 
 app.get('/overlay/chat', (_req, res) => {
-  const html = fs.readFileSync(path.resolve(overlayDir, 'chat.html'), 'utf-8')
   res.setHeader('Content-Type', 'text/html')
-  res.send(html)
+  res.send(chatOverlayHtml)
 })
 
 app.get('/overlay/pin', (_req, res) => {
-  const html = fs.readFileSync(path.resolve(overlayDir, 'pin.html'), 'utf-8')
   res.setHeader('Content-Type', 'text/html')
-  res.send(html)
+  res.send(pinOverlayHtml)
 })
 
 io.on('connection', (socket) => {
