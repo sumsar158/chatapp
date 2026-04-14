@@ -1,1 +1,1 @@
-export * from '../../../shared/src/models'
+export * from '../../shared/src/models'
