@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat Overlay</title>
+    <style>
+      body { margin: 0; font-family: system-ui, sans-serif; background: transparent; color: white; }
+      #chat { display: flex; flex-direction: column; gap: 6px; padding: 8px; }
+      .message { border-radius: 8px; padding: 8px 10px; backdrop-filter: blur(3px); background: rgba(0,0,0,.55); }
+      .filtered { filter: blur(6px); }
+      .meta { font-size: 12px; opacity: .85; margin-bottom: 4px; }
+      img { width: 18px; height: 18px; vertical-align: middle; }
+    </style>
+  </head>
+  <body>
+    <div id="chat"></div>
+    <script src="https://cdn.socket.io/4.8.3/socket.io.min.js"></script>
+    <script>
+      const chat = document.getElementById('chat')
+      const socket = io()
+      const push = (msg) => {
+        const el = document.createElement('div')
+        el.className = `message ${msg.filtered ? 'filtered' : ''}`
+        el.innerHTML = `<div class="meta">${msg.platform} • ${msg.channel} • ${msg.username}</div><div>${msg.content}</div>`
+        chat.appendChild(el)
+        while (chat.children.length > 30) chat.removeChild(chat.firstChild)
+      }
+      socket.on('bootstrap', (state) => state.messages.slice(-30).forEach(push))
+      socket.on('chat:message', push)
+    </script>
+  </body>
+</html>

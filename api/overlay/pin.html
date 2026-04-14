@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pinned Overlay</title>
+    <style>
+      body { margin: 0; font-family: system-ui, sans-serif; background: transparent; color: white; }
+      #pin { min-width: 320px; max-width: 720px; border-radius: 14px; padding: 14px 16px; border: 2px solid #7c3aed; background: rgba(17,24,39,.78); box-shadow: 0 0 30px rgba(124,58,237,.45); display: none; }
+      #pin.show { display: block; }
+      .filtered { filter: blur(6px); }
+      .meta { font-size: 13px; opacity: .85; margin-bottom: 6px; }
+      .msg { font-size: 28px; }
+    </style>
+  </head>
+  <body>
+    <div id="pin"></div>
+    <script src="https://cdn.socket.io/4.8.3/socket.io.min.js"></script>
+    <script>
+      const box = document.getElementById('pin')
+      const socket = io()
+      const render = (pin) => {
+        if (!pin) {
+          box.className = ''
+          box.innerHTML = ''
+          return
+        }
+        box.className = 'show'
+        const shouldBlur = pin.message.filtered && !pin.unblurredForOverlay
+        box.innerHTML = `<div class="meta">${pin.message.platform} • ${pin.message.channel} • ${pin.message.username}</div><div class="msg ${shouldBlur ? 'filtered' : ''}">${pin.message.content}</div>`
+      }
+      socket.on('bootstrap', (state) => render(state.activePins[0]))
+      socket.on('pin:added', render)
+      socket.on('pin:updated', render)
+      socket.on('pin:dismissed', () => render(null))
+      socket.on('pin:state', (state) => render(state.activePins[0] || null))
+    </script>
+  </body>
+</html>
